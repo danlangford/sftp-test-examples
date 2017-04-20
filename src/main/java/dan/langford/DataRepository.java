@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
+import org.springframework.retry.backoff.ExponentialBackOffPolicy;
+import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -29,6 +31,8 @@ public class DataRepository {
 	public DataRepository(Properties props, JSch jSch) {
 		this.props = props;
 		this.jSch = jSch;
+		retry.setRetryPolicy(new SimpleRetryPolicy(6));
+		retry.setBackOffPolicy(new ExponentialBackOffPolicy());
 	}
 
 	private Session getSession() {
@@ -80,14 +84,7 @@ public class DataRepository {
 		Session session = getSession();
 		ChannelSftp channel = getChannel(session);
 		try {
-			return retry.execute(new RetryCallback<String, Exception>() {
-				@Override
-				public String doWithRetry(RetryContext context) throws Exception {
-					InputStream is = channel.get(filename);
-					return IOUtils.toString(is, "utf-8");
-				}
-			});
-
+			return retry.execute(context -> IOUtils.toString(channel.get(filename), "utf-8"));
 		} catch (Exception e) {
 			throw new RuntimeException("problem reading file", e);
 		} finally {

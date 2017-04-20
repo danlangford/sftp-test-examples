@@ -3,8 +3,6 @@ package dan.langford;
 import com.jcraft.jsch.JSch;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +12,6 @@ import java.util.Properties;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(MockitoJUnitRunner.class)
 public class ControllerTests {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
@@ -30,7 +27,8 @@ public class ControllerTests {
 	}
 
 
-	// This isn't actually a "unit" test but i can use it to test things are working before i move on
+	// This isn't actually a "unit" test as it requires me to run sftp locally
+	// but i can use it to test things are working before i move on
 	@Test
 	public void testWriteRead() {
 		String value = "Your awesome! #" + Math.random(), name = "fortune.txt";
